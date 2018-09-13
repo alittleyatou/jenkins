@@ -2,57 +2,79 @@
 翻译的比较详细的博客：https://www.cnblogs.com/YatHo/p/7856556.htm
 
 一、基础知识
-
+{
 #为什么要用 Pipeline?
+{
 代码: Pipeline以代码的形式实现,通常被检λ源代码控制,使团队能够编辑审查和迭代其CD流程。
 可持续性: Jenkins重启或者中断后都不会影响 Pipeline Job
 停顿: Pipeline可以选择停止并等待人工输入或批准,然后再继续 Pipeline运行。
 多功能: Pipeline支持现实世界的复杂CD要求,包括fork/join子进程,循环和并行执行工作的能力。
 可扩展: Pipeline插件支持其DSL的自定义扩展以及与其他插件集成的多个选项
+}
 
 #Multibranch Pipeline（多分支流水线）：
-根据一个SCM仓库中检测到的分支创建一系列流水线
+{
+根据一个SCM仓库中检测到的分支创建一系列流水线}
 
 #Pipeline支持两种语法
+{
 Declarative声明式（在Pipeline plugin2.5中引入）
 Scripted Pipeline脚本式
+}
 
 #如何创建基本的Pipeline
+{
 1）直接在Jenkins Weeb UI网页界面中输入pipeline脚本
 2）通过创建一个Jenkinsfile可以检入项目的源代码管理库
+}
 
 #最佳实践
+{
 推荐在Jenkins中直接从源代码控制（SCM）中见图Jenkinsfiles
-
+}
+}
 
 ——————————————————————————————————————————————————————————————————————————————————————————————
 二、Declarative（声明式） Pipeline
+{
 
 #声明式pipeline的基本语法与groovy基本一致，但有以下例外：
+{
 1）声明式pipeline必须包含在固定格式pipeline{}块内；
 2）每个声明语句必须独立一行，行位无需使用分号；
 3）块（Blocks{}）只能包含Sections（章节）, Directives（指令）, Steps（步骤）或赋值语句。
 4）属性引用语句被视为无参方法调用。所以例如，输入被视为input（）
+}
 
 #块（blocks{}）
+{
 由大括号括起来的语句，如：
 pipeline{}，section{}，parameters{}，script{}
+}
 
 #章节（Sections）
+{
 Sections通常包含一个或多个Directives或 Steps
 agent，post，stages，steps
+}
 
 #指令（Directives）
+{
 environment（环境变量），options（pipeline选项要求），paeameters（参数化构建），triggers（设置触发器），stage，tools，when
+}
 
 #步骤（steps）
+{
 Pipeline Steps reference：https://jenkins.io/doc/pipeline/steps/
 执行脚本式pipeline：使用script{}
+}
 
 #agent
+{
 agent部分指定整个Pipeline或特定阶段将在Jenkins环境中执行的位置。
 必须在pipeline块内的顶层定义 ，但stage级使用是可选的。
 1）参数
+{
 any：在任何可用的agent上执行Pipeline或stage。例如：agent any
 none：暂时不指定运行节点，每个stage部分将需要包含其自己的agent部分
 label：例如：agent { label 'my-defined-label' }
@@ -71,7 +93,10 @@ dockerfile：使用从Dockerfile源存储库中包含的容器来构建执行Pip
 			默认是在Dockerfile源库的根目录：agent { dockerfile true }。
 			如果Dockerfile需在另一个目录中建立，请使用以下dir选项：agent { dockerfile { dir 'someSubDir' } }。
 			您可以通过docker build ...使用additionalBuildArgs选项，如agent { dockerfile { additionalBuildArgs '--build-arg foo=bar' } }。
+}
+
 2）常用选项
+{
 label
 customWorkspace：一个字符串。自定义运行的工作空间内。它可以是相对路径，在这种情况下，自定义工作区将位于节点上的工作空间根目录下，也可以是绝对路径。例如：
 				agent {
@@ -81,15 +106,21 @@ customWorkspace：一个字符串。自定义运行的工作空间内。它可�
 					}
 				}
 reuseNode：一个布尔值，默认为false。如果为true，则在同一工作空间中。此选项适用于docker和dockerfile，并且仅在 individual stage中使用agent才有效。
-
+}
+}
 #post
+{
 1）使用方法
+{
  post{//stage只要有一个出错，则后面的stage全部停止。post则无论stage什么状态都会执行。
         failure{
             script {   }
          }
      }
+}
+
 2）conditions项：
+{
 　　always
 　　　　运行，无论Pipeline运行的完成状态如何。
 　　changed
@@ -102,22 +133,31 @@ reuseNode：一个布尔值，默认为false。如果为true，则在同一工�
 　　　　只有当前Pipeline具有“不稳定”状态，通常由测试失败，代码违例等引起，才能运行。通常在具有黄色指示的Web UI中表示。
 　　aborted
 　　　　只有当前Pipeline处于“中止”状态时，才会运行，通常是由于Pipeline被手动中止。通常在具有灰色指示的Web UI中表示。
+}
+}
 
 #stages
+{
 1）声明式pipeline中必须包含且只能有一个
 2）通常位于agent或者options后面
+}
 
 #steps
+{
 1）包含一个或多个在stage块中执行的step序列。
 2）仅有一个step的情况下可以省略steps{}下的step块
+}
 
 #environment:环境变量
+{
 该指令支持一种特殊的方法credentials()，可以通过其在Jenkins环境中的标识符来访问预定义的凭据。例如：
 environment {
                 AN_ACCESS_KEY = credentials('my-prefined-secret-text')
             }
+}
 
 #options
+{
 1）指令允许在Pipeline本身内配置Pipeline专用选项。
 2）在一个pipeline中仅允许出现一次
 3）可用选项
@@ -148,8 +188,10 @@ environment {
 			}
 		}
 	}　
+}
 
 #parameters
+{
 可用选项：目前只支持[booleanParam, choice, credentials, file, text, password, run, string]这几种参数类型
 booleanParam：布尔类型（true，FALSE）
 choice：单选
@@ -159,15 +201,19 @@ text：文本
 password：密码
 run：运行
 string：字符串
+}
 
 #triggers
+{
 Pipeline自动化触发的方式，目前只有两个可用的触发器：cron和pollSCM。
 cron
 　　接受一个cron风格的字符串来定义Pipeline触发的常规间隔，例如： triggers { cron('H 4/* 0 0 1-5') }
 pollSCM
 　　接受一个cron风格的字符串来定义Jenkins检查SCM源更改的常规间隔。如果存在新的更改，则Pipeline将被重新触发。例如：triggers { pollSCM('H 4/* 0 0 1-5') }
+}
 
 #tools
+{
 通过tools可自动安装工具，并放置环境变量到PATH。如果agent none，这将被忽略。
 Supported Tools(Global Tool Configuration)
 　　maven
@@ -187,8 +233,10 @@ pipeline {
         }
     }
 }
+}
 
 #when
+{
 根据给定的条件确定是否执行该阶段。
 该when指令必须至少包含一个条件。
 如果when指令包含多个条件，则所有子条件必须为stage执行返回true。
@@ -226,8 +274,10 @@ pipeline {
         }
     }
 }
+}
 
 #Parallel(并行)
+{
 Declarative Pipeline近期新增了对并行嵌套stage的支持，对耗时长，相互不存在依赖的stage可以使用此方式提升运行效率。除了parallel stage，单个parallel里的多个step也可以使用并行的方式运行。
 pipeline {
     agent any
@@ -262,10 +312,14 @@ pipeline {
         }
     }
 }
+}
 
-#Scripted Pipeline流程控制
-
-1）pipeline脚本同其它脚本语言一样，从上至下顺序执行，它的流程控制取决于Groovy表达式，如if/else条件语句，举例如下：
+#Scripted Pipeline
+{
+1）流程控制
+{
+{
+pipeline脚本同其它脚本语言一样，从上至下顺序执行，它的流程控制取决于Groovy表达式，如if/else条件语句，举例如下：
 Jenkinsfile (Scripted Pipeline)
 node {
     stage('Example') {
@@ -276,8 +330,12 @@ node {
         }
     }
 }
+}
+}
 
-2）pipeline脚本流程控制的另一种方式是Groovy的异常处理机制。当任何一个步骤因各种原因而出现异常时，都必须在Groovy中使用try/catch/finally语句块进行处理，举例如下：
+2）Groovy的异常处理机制
+{
+当任何一个步骤因各种原因而出现异常时，都必须在Groovy中使用try/catch/finally语句块进行处理，举例如下：
 Jenkinsfile (Scripted Pipeline)
 node {
     stage('Example') {
@@ -289,4 +347,13 @@ node {
             throw
         }
     }
+}
+}
+}
+}
+
+三、jenkins常用辅助工具
+{
+1）代码生成器
+
 }
