@@ -354,6 +354,135 @@ node {
 
 三、jenkins常用辅助工具
 {
-1）代码生成器
+1）代码生成器（Pipeline Syntax）
+2）replay：可获取历史job的pipeline
+3）pipeline语法参考手册（job-pipeline-syntax-Steps Reference）：包含当前jenkins已安装所有插件的pipeline说明
+}
+
+四、全局变量引用
+{
+#env
+{
+获取环境变量
+env.path env.BUILD_ID
+}
+
+#params
+{
+获取参数化构建中配置的参数
+params.JIRA_ISSUE_ID
+params.script_dir
+}
+
+#currentBuild
+{
+引用当前运行的pipeline构建信息
+}
+
+#可用的所有全局变量信息
+{
+job/pipeline-syntax/globals
+}
+
+}
+
+五、其他待学习拓展功能
+{
+可视化BlueOcean
+pipeline可视化编辑器
+命令行pipeline调试工具
+}
+
+六、复杂的pipeline功能
+{
+#变量传递
+{
+{
+1）自定义变量def（局部）
+{
+def username = 'jenkins'
+echo 'Hello Mr.${username}'
+echo "Hello Mr.${username}"
+打印结果
+Hello Mr.${username}
+Hello Mr.jenkins
+}
+}
+2）环境变量withEnv（局部）
+{
+withEnv(['JIRA_SITE=wzzjira']) {
+    echo 'jira issue key:'
+    echo "${params.JIRA_ISSUE_KEY2}"
+	}
+此后此环境变量失效
+}
+
+3）环境变量（全局）environment——可出现多次
+{
+environment{CC = 'CLANG'}
+echo "dd=${env.CC}"
+}
+
+4)参数化构建parameters（全局）
+{
+parameters {
+string(name:'client_version',defaultValue:'', description: '请填写客户端版本号')
+echo "${params.client_version}"
+}
+}
+}
+#判断when——仅用于stage内部
+{
+内置条件
+　　branch
+　　　　当正在构建的分支与给出的分支模式匹配时执行，例如：when { branch 'master' }。请注意，这仅适用于多分支Pipeline。
+　　environment
+　　　　当指定的环境变量设置为给定值时执行，例如： when { environment name: 'DEPLOY_TO', value: 'production' }
+　　expression
+　　　　当指定的Groovy表达式求值为true时执行，例如： when { expression { return params.DEBUG_BUILD } }
+　　not
+　　　　当嵌套条件为false时执行。必须包含一个条件。例如：when { not { branch 'master' } }
+　　allOf
+　　　　当所有嵌套条件都为真时执行。必须至少包含一个条件。例如：when { allOf { branch 'master'; environment name: 'DEPLOY_TO', value: 'production' } }
+　　anyOf
+　　　　当至少一个嵌套条件为真时执行。必须至少包含一个条件。例如：when { anyOf { branch 'master'; branch 'staging' } }
+}
+
+#循环
+{
+for循环仅存在于script pipeline中，声明式需要使用可用script{}调用
+}
+
+#并行
+
+#人工确认input
+{
+样例1:submitter中限制了必须是BossId才可以点击确认，其他用户点击无效
+steps{
+	input(message:'请确认测试已经通过'
+	id:'idfortestpass',ok:'我确认',
+	submitter:'BossID',submitterParameter:'versionStr')
+}
+样例2：确认时还需输入参数信息：选择发布类型，之后把参数打印出来或者传给其他步骤
+steps{
+	script{
+	env.RELEASE_SCOPE = input message:'请选择发布类型：',
+	ok:'Release!',
+	parameters:[choice(name:'RELEASE_SCOPE',
+	choices:'开发环境\n测试环境\n生产环境',
+	description:'请选择此次发布的类型。')]
+	}
+}
+
+}
+
+#异常处理
+
+#stash——缓存，一般用于暂存<10M的文件
+{
+样例:缓存testport目录下的所有html文件到命名为report的stash下
+stash include:'**/testport/*.html',name:'report'
+unstash 'report'
+}
 
 }
